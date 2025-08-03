@@ -48,6 +48,33 @@ namespace LeaderboardApi.Controllers
             // Save changes to the database
             await _context.SaveChangesAsync();
 
+            // Recalculate and store total score in level 0 
+            var totalScore = await _context.PlayerScores
+                .Where(p => p.PlayerName == score.PlayerName && p.Level != 0)
+                .SumAsync(p => p.Score);
+
+            var totalRecord = await _context.PlayerScores
+                .FirstOrDefaultAsync(p => p.PlayerName == score.PlayerName && p.Level == 0);
+
+            if (totalRecord == null)
+            {
+                _context.PlayerScores.Add(new PlayerScore
+                {
+                    PlayerName = score.PlayerName,
+                    Level = 0,
+                    Score = totalScore,
+                    SubmittedAt = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                totalRecord.Score = totalScore;
+                totalRecord.SubmittedAt = DateTime.UtcNow;
+                _context.PlayerScores.Update(totalRecord);
+            }
+
+            await _context.SaveChangesAsync();
+
             // Return 200 OK with the inserted or updated score
             return Ok(score);
         }
@@ -62,21 +89,36 @@ namespace LeaderboardApi.Controllers
         {
             IQueryable<PlayerScore> query = _context.PlayerScores;
 
-            if (level > 0)
-                query = query.Where(p => p.Level == level);
+            //if (level > 0)
+            //    query = query.Where(p => p.Level == level);
 
-            // Group scores by player and sum total scores
+            //// Group scores by player and sum total scores
+            //var grouped = await query
+            //    .GroupBy(p => p.PlayerName)
+            //    .Select(g => new
+            //    {
+            //        PlayerName = g.Key,
+            //        TotalScore = g.Sum(x => x.Score),
+            //        LatestSubmission = g.Max(x => x.SubmittedAt)
+            //    })
+            //    .OrderByDescending(g => g.TotalScore)
+            //    .ThenBy(g => g.LatestSubmission)
+            //    .ToListAsync();
+
             var grouped = await query
-                .GroupBy(p => p.PlayerName)
-                .Select(g => new
-                {
-                    PlayerName = g.Key,
-                    TotalScore = g.Sum(x => x.Score),
-                    LatestSubmission = g.Max(x => x.SubmittedAt)
-                })
-                .OrderByDescending(g => g.TotalScore)
-                .ThenBy(g => g.LatestSubmission)
-                .ToListAsync();
+              .Where(p => p.Level == level)
+              .Select(p => new
+              {
+                  PlayerName = p.PlayerName,
+                  TotalScore = p.Score,
+                  LatestSubmission = p.SubmittedAt
+              })
+              .OrderByDescending(p => p.TotalScore)
+              .ThenBy(p => p.LatestSubmission)
+              .Skip((page - 1) * pageSize)
+              .Take(pageSize)
+              .ToListAsync();
+
 
             // Assign global ranks (1-based index)
             var ranked = grouped
