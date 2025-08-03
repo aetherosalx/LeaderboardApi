@@ -115,8 +115,6 @@ namespace LeaderboardApi.Controllers
               })
               .OrderByDescending(p => p.TotalScore)
               .ThenBy(p => p.LatestSubmission)
-              .Skip((page - 1) * pageSize)
-              .Take(pageSize)
               .ToListAsync();
 
 
@@ -190,6 +188,56 @@ namespace LeaderboardApi.Controllers
             };
 
             return Ok(dto);
+        }
+
+
+        [HttpPost("populate")]
+        public async Task<IActionResult> PopulateTestData()
+        {
+            var random = new Random();
+            var players = new List<string>();
+
+            // Generate 50 unique player names
+            for (int i = 1; i <= 50; i++)
+                players.Add($"Player{i}");
+
+            for (int level = 1; level <= 5; level++)
+            {
+                foreach (var player in players)
+                {
+                    Console.WriteLine($"{player} added to {level}");
+                    var score = random.Next(1, 50)*100;
+                    var playerScore = new PlayerScore
+                    {
+                        PlayerName = player,
+                        Level = level,
+                        Score = score
+                    };
+
+                    await SubmitScore(playerScore); // Reuse existing logic (updates level 0)
+                }
+            }
+
+            return Ok("Test data populated.");
+        }
+
+        [HttpPost("clear")]
+        public async Task<IActionResult> ClearScores()
+        {
+            var allScores = _context.PlayerScores;
+            _context.PlayerScores.RemoveRange(allScores);
+            await _context.SaveChangesAsync();
+
+            return Ok("All scores cleared.");
+        }
+
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<PlayerScore>>> GetAllScores()
+        {
+            return await _context.PlayerScores
+                .OrderBy(p => p.PlayerName)
+                .ThenBy(p => p.Level)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]

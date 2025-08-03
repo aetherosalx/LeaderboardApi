@@ -56,14 +56,32 @@
     <tbody>
         @foreach (var entry in Model.Scores)
         {
-            <tr>
-                <td>@entry.Rank</td>
-                <td>
-                    <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
-                </td>
-                <td>@entry.TotalScore</td>
-                <td>@entry.LatestSubmission.ToLocalTime()</td>
-            </tr>
+            if (entry.PlayerName == Model.PlayerName)
+            {
+                <tr>
+
+                    <td><strong>@entry.Rank</strong></td>
+                    <td>
+                        <strong>
+                        <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
+                        </strong>
+                    </td>
+                    <td><strong>@entry.TotalScore</strong></td>
+                    <td><strong>@entry.LatestSubmission.ToLocalTime()</strong></td>
+                    
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@entry.Rank</td>
+                    <td>
+                        <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
+                    </td>
+                    <td>@entry.TotalScore</td>
+                    <td>@entry.LatestSubmission.ToLocalTime()</td>
+                </tr>
+            }
         }
     </tbody>
 </table>
