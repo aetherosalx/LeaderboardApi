@@ -9,6 +9,7 @@ namespace LeaderboardApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Logging.AddConsole();
 
             // Bind to dynamic port only in production
             if (!builder.Environment.IsDevelopment())
@@ -23,21 +24,22 @@ namespace LeaderboardApi
 
             builder.Services.AddDbContext<LeaderboardContext>(options =>
             {
-                var usePostgres = builder.Configuration.GetValue<bool>("UsePostgres");
-                if (usePostgres)
+                var useSqlite = builder.Configuration.GetValue<bool>("UseSqlite");
+                if (useSqlite)
                 {
-                    var postgresConnection = builder.Configuration.GetConnectionString("PostgresConnection");
-                    options.UseNpgsql(postgresConnection);
+                    var sqliteConnection = builder.Configuration.GetConnectionString("SqliteConnection");
+                    options.UseSqlite(sqliteConnection);
                 }
                 else
                 {
-                    var sqliteConnection = builder.Configuration.GetConnectionString("DefaultConnection");
-                    options.UseSqlite(sqliteConnection);
+                    var postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+                    options.UseNpgsql(postgresConnection);
                 }
             });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Logging.AddConsole();
 
             var app = builder.Build();
 
@@ -77,6 +79,19 @@ namespace LeaderboardApi
             }
 
             //app.UseHttpsRedirection(); Render deals with HTTPS automatically
+
+            app.Use(async (context, next) =>
+            {
+                try
+                {
+                    await next();
+                }
+                catch (Exception ex)
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync($"Internal Server Error: {ex.Message}");
+                }
+            });
             app.UseRouting();
             app.UseAuthorization();
 
