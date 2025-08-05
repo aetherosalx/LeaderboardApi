@@ -3,111 +3,123 @@
 @{
     ViewData["Title"] = "Leaderboard";
     var levelQuery = Model.CurrentLevel == 0 ? "" : $"&level={Model.CurrentLevel}";
-    var levelName = Model.CurrentLevel == 0 ? "Top Score |" : $"Level {Model.CurrentLevel} |";
-    var playerQuery = Model.PlayerName is null ? "" : $"&player={Model.PlayerName}";
+    var levelName = Model.CurrentLevel == 0 ? "Top Score" : $"Level {Model.CurrentLevel}";
+    var playerQuery = string.IsNullOrEmpty(Model.PlayerName) ? "" : $"&player={Model.PlayerName}";
     var numLevels = 5;
 
-
-}
- 
-<h1>
-    Leaderboard – @levelName Page @Model.CurrentPage of @Model.TotalPages</h1>
-
-@if (Model.PlayerName is not null)
-{
-
-
-    @if (Model.PlayerRow is not null)
-    {
-        <p class="leaderboard-meta">
-            Player <strong>@Model.PlayerRow.PlayerName</strong> is ranked <strong>#@Model.PlayerRow.Rank</strong> out of <strong>@Model.TotalPlayers</strong>
-        </p>
-    }
-    else
-    {
-        <p class="leaderboard-meta">
-            Player <strong>@Model.PlayerName</strong> is not ranked yet
-        </p>
-    }
-
+    Layout = null; // explicitly disable layout
 }
 
-<div style="margin-bottom: 15px;">
-    <strong>View:</strong>
-    <a href="/Leaderboard?page=0&level=0@(playerQuery)">Total</a>
-    <span style="margin-left: 10px;">
-        @for (int i = 1; i <= numLevels; i++) 
-        {
-            <a href="/Leaderboard?page=0&level=@i@playerQuery" style="margin-left: 10px;">Level @i</a>
-        }
-    </span>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leaderboard – @levelName</title>
+    <link rel="stylesheet" href="~/css/leaderboard.css" />
+</head>
+<body>
 
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Score</th>
-            <th>Last Played</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var entry in Model.Scores)
-        {
-            if (entry.PlayerName == Model.PlayerName)
-            {
-                <tr>
 
-                    <td><strong>@entry.Rank</strong></td>
-                    <td>
-                        <strong>
-                        <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
-                        </strong>
-                    </td>
-                    <td><strong>@entry.TotalScore</strong></td>
-                    <td><strong>@entry.LatestSubmission.ToLocalTime()</strong></td>
-                    
-                </tr>
-            }
-            else
-            {
-                <tr>
-                    <td>@entry.Rank</td>
-                    <td>
-                        <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
-                    </td>
-                    <td>@entry.TotalScore</td>
-                    <td>@entry.LatestSubmission.ToLocalTime()</td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+    <div class="leaderboard-container">
+        <div class="leaderboard-table">
+            <div class="header-links">
 
-@{
-    
-}
-<div style="margin-top: 20px;">
-    @if (Model.CurrentPage > 1)
-    {
-        <a href="/Leaderboard?page=@(Model.CurrentPage - 1)@levelQuery@playerQuery" class="btn btn-primary">← Previous</a>
-    }
-    else
-    {
-        <button class="btn btn-secondary disabled">← Previous</button>
-    }
+                <h1>
+                    Leaderboard – @levelName
+                </h1>
 
-    @if (Model.Scores.Count == 10)
-    {
-        <a href="/Leaderboard?page=@(Model.CurrentPage + 1)@levelQuery@playerQuery"
-           class="btn btn-primary" style="margin-left: 10px;">
-            Next →
-        </a>
-    }
-    else
-    {
-        <button class="btn btn-secondary disabled" style="margin-left: 10px;">Next →</button>
-    }
-</div>
+                @if (!string.IsNullOrEmpty(Model.PlayerName))
+                {
+
+
+                    @if (Model.PlayerRow is not null)
+                    {
+                        <p class="leaderboard-meta">
+                            Player <strong>@Model.PlayerRow.PlayerName</strong> is ranked <strong>#@Model.PlayerRow.Rank</strong> out of <strong>@Model.TotalPlayers</strong>
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="leaderboard-meta">
+                            Player <strong>@Model.PlayerName</strong> is not ranked yet
+                        </p>
+                    }
+
+                }
+                else
+                {
+                    <p class="leaderboard-meta"> - </p>
+                }
+                <!-- Levels -->
+                <div class="level-links" style="margin-bottom: 15px;">
+                    <a class="@(Model.CurrentLevel == 0 ? "active-level" : "")" href="/Leaderboard?page=0&level=0@(playerQuery)">Top Score</a>
+
+                    <span style="margin-left: 10px;">
+                        @for (int i = 1; i <= numLevels; i++)
+                        {
+                            var isActive = i == Model.CurrentLevel ? "active-level" : "";
+                            <a class="@isActive" href="/Leaderboard?page=0&level=@i@playerQuery" style="margin-left: 10px;">Level @i</a>
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Last Played</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < 10; i++)
+                    {
+
+                        if (i < Model.Scores.Count)
+                        {
+                            var entry = Model.Scores[i];
+                            var isCurrentPlayer = Model.PlayerRow != null &&
+                            entry.PlayerName.Equals(Model.PlayerRow.PlayerName, StringComparison.OrdinalIgnoreCase);
+                            <tr class="@(isCurrentPlayer ? "highlight-player" : "")">
+                                <td>@entry.Rank</td>
+                                <td>
+                                    <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
+                                </td>
+                                <td>@entry.TotalScore</td>
+                                <td>@entry.LatestSubmission.ToLocalTime()</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">&nbsp;</td> <!-- Empty row -->
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <a class="nav-button @(Model.CurrentPage == 1 ? "disabled" : "")"
+                   href="/Leaderboard?page=@(Model.CurrentPage - 1)@levelQuery@playerQuery">
+                    ← Prev
+                </a>
+
+                <span class="page-info">Page @Model.CurrentPage of @Model.TotalPages</span>
+
+                <a class="nav-button @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"
+                   href="/Leaderboard?page=@(Model.CurrentPage + 1)@levelQuery@playerQuery">
+                    Next →
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

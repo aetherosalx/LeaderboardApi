@@ -98,6 +98,8 @@ namespace LeaderboardApi
                     await context.Response.WriteAsync($"Internal Server Error: {ex.Message}");
                 }
             });
+
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
 

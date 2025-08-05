@@ -1,0 +1,149 @@
+﻿html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #121212;
+    color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.leaderboard-container {
+    display: block;
+    padding: 2rem 1rem;
+    max-width: 800px;
+    margin: 0 auto; /* horizontally center */
+    box-sizing: border-box;
+}
+
+.leaderboard-table {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+    max-width: 800px;
+    width: 90%;
+}
+
+.level-links a {
+    margin: 0 0.5rem;
+    color: #4da6ff;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem; /* Match active link */
+    border-radius: 5px; /* Match active link */
+    display: inline-block; /* Prevent shifting due to background/padding */
+}
+a.active-level {
+    font-weight: bold;
+    color: #ffffff !important;
+}
+
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.nav-button,
+.nav-button.disabled {
+    font-size: 1rem; /* Force consistent font size */
+    padding: 0.5rem 1rem;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 5px;
+    color: #f0f0f0 !important;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+    /* Optional: hover for active buttons only */
+    .nav-button:hover {
+        background-color: #555;
+    }
+
+    /* Disabled button specific styles */
+    .nav-button.disabled {
+        background-color: #222;
+        border-color: #444;
+
+        pointer-events: none;
+        opacity: 0.6;
+        cursor: default;
+    }
+
+.page-info {
+    font-weight: bold;
+}
+
+.header-links {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* Highlighted row background and text */
+.highlight-player {
+    background-color: #004080 !important; /* Deep blue */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+    /* Ensure links inside highlight stay light */
+    .highlight-player a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+/* Highlighted player row link styling */
+.highlight-player a,
+.highlight-player a:visited,
+.highlight-player a:hover,
+.highlight-player a:active {
+    color: #ffffff !important; /* Force white */
+    text-decoration: none;
+}
+a {
+    color: #4da6ff; /* Light blue */
+    text-decoration: none; /* Remove underline */
+}
+
+    a:visited {
+        color: #4da6ff; /* Prevent purple after visit */
+    }
+
+    a:hover {
+        color: #80cfff; /* Lighter blue on hover */
+        text-decoration: underline;
+    }
+
+h1 {
+    text-align: center;
+    color: #ffffff;
+    margin: 0 0 1rem 0; /* Top, right, bottom, left */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #f0f0f0;
+}
+
+th, td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #2a2a2a;
+}
+
+tr:nth-child(even) {
+    background-color: #1a1a1a;
+}
+
+tr:hover {
+    background-color: #333;
+}
