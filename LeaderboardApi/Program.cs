@@ -43,6 +43,12 @@ namespace LeaderboardApi
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<LeaderboardContext>();
+                db.Database.Migrate(); // Automatically applies any pending EF Core migrations
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
