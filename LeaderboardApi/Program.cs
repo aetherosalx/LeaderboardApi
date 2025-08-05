@@ -10,6 +10,13 @@ namespace LeaderboardApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Bind to dynamic port only in production
+            if (!builder.Environment.IsDevelopment())
+            {
+                var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+                builder.WebHost.UseUrls($"http://*:{port}");
+            }
+
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddRazorPages(); 
@@ -29,9 +36,6 @@ namespace LeaderboardApi
                 }
             });
 
-
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -41,7 +45,6 @@ namespace LeaderboardApi
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                //app.UseSwaggerUI();
 
                 app.UseSwaggerUI(c =>
                 {
