@@ -77,7 +77,7 @@ namespace LeaderboardApi
             }
 
             //app.UseHttpsRedirection(); Render deals with HTTPS automatically
-
+            app.UseRouting();
             app.UseAuthorization();
 
 
