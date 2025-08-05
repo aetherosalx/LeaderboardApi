@@ -12,18 +12,15 @@ public class LeaderboardModel : PageModel
     public List<LeaderboardEntryDto> Scores { get; set; } = new();
     public int CurrentPage { get; set; } = 1;
     public int CurrentLevel { get; set; } = 0;
-
     public int TotalPages { get; set; } = 0;
     public int TotalPlayers { get; set; } = 0;
-
-    public string PlayerName { get; set; } = null;
+    public string PlayerName { get; set; } = "";
 
     public LeaderboardEntryDto? PlayerRow { get; set; }
 
 
-
     // Called when the page loads
-    public async Task OnGetAsync([FromQuery] int page = 0, [FromQuery] int level = 0, [FromQuery] string player = null)
+    public async Task OnGetAsync([FromQuery] int page = 0, [FromQuery] int level = 0, [FromQuery] string player = "")
     {
         //CurrentPage = page;
         CurrentLevel = level;
@@ -40,7 +37,7 @@ public class LeaderboardModel : PageModel
             url += $"&player={Uri.EscapeDataString(player)}";
 
 
-        // Request leaderboard scores with page number
+        // Request leaderboard scores 
         var result = await client.GetFromJsonAsync<LeaderboardResultDto>(url);
 
 

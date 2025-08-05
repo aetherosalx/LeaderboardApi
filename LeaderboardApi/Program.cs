@@ -10,11 +10,16 @@ namespace LeaderboardApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Set the port for Render
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.ListenAnyIP(Int32.Parse(port));
+            });
 
+            // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddRazorPages(); 
-
 
             builder.Services.AddDbContext<LeaderboardContext>(options =>
             {
@@ -75,7 +80,7 @@ namespace LeaderboardApi
 
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection(); Render deals with HTTPS automatically
 
             app.UseAuthorization();
 
