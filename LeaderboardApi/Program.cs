@@ -15,9 +15,22 @@ namespace LeaderboardApi
             builder.Services.AddControllers();
             builder.Services.AddRazorPages(); 
 
+
             builder.Services.AddDbContext<LeaderboardContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-            
+            {
+                var usePostgres = builder.Configuration.GetValue<bool>("UsePostgres");
+                if (usePostgres)
+                {
+                    var postgresConnection = builder.Configuration.GetConnectionString("PostgresConnection");
+                    options.UseNpgsql(postgresConnection);
+                }
+                else
+                {
+                    var sqliteConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+                    options.UseSqlite(sqliteConnection);
+                }
+            });
+
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
