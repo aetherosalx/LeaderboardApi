@@ -30,6 +30,7 @@
                     Leaderboard – @levelName
                 </h1>
 
+                <!-- Player Stats -->
                 @if (!string.IsNullOrEmpty(Model.PlayerName))
                 {
 
@@ -43,7 +44,11 @@
                     else
                     {
                         <p class="leaderboard-meta">
-                            Player <strong>@Model.PlayerName</strong> is not ranked yet
+                            Player <strong>@Model.PlayerName</strong> is not ranked
+                            @if (Model.CurrentLevel != 0)
+                            {
+                                <text> in <strong>Level @Model.CurrentLevel</strong></text>
+                            }
                         </p>
                     }
 
@@ -52,6 +57,7 @@
                 {
                     <p class="leaderboard-meta"> - </p>
                 }
+
                 <!-- Levels -->
                 <div class="level-links" style="margin-bottom: 15px;">
                     <a class="@(Model.CurrentLevel == 0 ? "active-level" : "")" href="/Leaderboard?page=0&level=0@(playerQuery)">Top Score</a>
@@ -66,6 +72,7 @@
                 </div>
             </div>
 
+            <!-- Scores -->
             <table class="table">
                 <thead>
                     <tr>
@@ -89,7 +96,7 @@
                                 <td>
                                     <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
                                 </td>
-                                <td>@entry.TotalScore</td>
+                                <td>@entry.TotalScore.ToString("N0")</td>
                                 <td>@entry.LatestSubmission.ToLocalTime()</td>
                             </tr>
                         }
@@ -118,6 +125,42 @@
                 </a>
 
             </div>
+
+            <hr class="section-separator" />
+
+            <!-- Score Submission -->
+            <form method="post" class="score-form">
+                @Html.AntiForgeryToken()
+
+                <div class="form-field player-name-field">
+                    <label for="SubmitPlayerName">Player Name:</label>
+                    <input type="text" id="SubmitPlayerName" name="SubmitPlayerName"
+                           asp-for="SubmitPlayerName"
+                           value="@Model.PlayerName"
+                           required
+                           pattern=".*[^ ].*"
+                           maxlength="50"
+                           title="Player name cannot be empty or just spaces" />
+                </div>
+
+                <div class="form-field level-field">
+                    <label for="Level">Level:</label>
+                    <input type="number" id="Level" name="Level"
+                           asp-for="Level"
+                           value="@(Model.CurrentLevel > 0 ? Model.CurrentLevel : "")"
+                           min="1" max="5" required />
+                </div>
+
+                <div class="form-field score-field">
+                    <label for="Score">Score:</label>
+                    <input type="number" id="Score" name="Score"
+                           asp-for="Score" min="1" max="1000000" required />
+                </div>
+
+                <div class="form-field">
+                    <button type="submit">Submit Score</button>
+                </div>
+            </form>
 
         </div>
     </div>

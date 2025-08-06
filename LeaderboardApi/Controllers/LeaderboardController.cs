@@ -3,6 +3,8 @@ using LeaderboardApi.Models;
 using LeaderboardApi.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 
 namespace LeaderboardApi.Controllers
 {
@@ -18,8 +20,27 @@ namespace LeaderboardApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PlayerScore>> SubmitScore(PlayerScore score)
+        public async Task<ActionResult<PlayerScore>> SubmitScore([FromBody] PlayerScore score)
         {
+            //string playerName = score.PlayerName?.Trim() ?? string.Empty;
+           // playerName = Regex.Replace(score.PlayerName?.Trim() ?? string.Empty, @"\s+", " ");
+
+            score.PlayerName = Regex.Replace(score.PlayerName?.Trim() ?? string.Empty, @"\s+", " ");
+
+            if (string.IsNullOrWhiteSpace(score.PlayerName) ||
+             score.PlayerName.Length > 50 ||
+             score.Level < 1 || score.Level > 5 ||
+             score.Score < 1 || score.Score > 1000000)
+            {
+                return BadRequest("Invalid input. Please check player name, level, and score.");
+            }
+
+
+            //Console.WriteLine("=======ENTERED SUBMIT SCORE===========");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             // Look for an existing score by the same player on the same level
             var existing = await _context.PlayerScores
                 .FirstOrDefaultAsync(p => p.PlayerName == score.PlayerName && p.Level == score.Level);
@@ -88,22 +109,6 @@ namespace LeaderboardApi.Controllers
             [FromQuery] string? player = null)
         {
             IQueryable<PlayerScore> query = _context.PlayerScores;
-
-            //if (level > 0)
-            //    query = query.Where(p => p.Level == level);
-
-            //// Group scores by player and sum total scores
-            //var grouped = await query
-            //    .GroupBy(p => p.PlayerName)
-            //    .Select(g => new
-            //    {
-            //        PlayerName = g.Key,
-            //        TotalScore = g.Sum(x => x.Score),
-            //        LatestSubmission = g.Max(x => x.SubmittedAt)
-            //    })
-            //    .OrderByDescending(g => g.TotalScore)
-            //    .ThenBy(g => g.LatestSubmission)
-            //    .ToListAsync();
 
             var grouped = await query
               .Where(p => p.Level == level)

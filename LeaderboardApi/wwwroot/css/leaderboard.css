@@ -60,20 +60,20 @@ a.active-level {
     text-align: center;
 }
 
-    /* Optional: hover for active buttons only */
-    .nav-button:hover {
-        background-color: #555;
-    }
+/* Optional: hover for active buttons only */
+.nav-button:hover {
+    background-color: #555;
+}
 
-    /* Disabled button specific styles */
-    .nav-button.disabled {
-        background-color: #222;
-        border-color: #444;
+/* Disabled button specific styles */
+.nav-button.disabled {
+    background-color: #222;
+    border-color: #444;
 
-        pointer-events: none;
-        opacity: 0.6;
-        cursor: default;
-    }
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: default;
+}
 
 .page-info {
     font-weight: bold;
@@ -91,11 +91,11 @@ a.active-level {
     font-weight: bold;
 }
 
-    /* Ensure links inside highlight stay light */
-    .highlight-player a {
-        color: #ffffff;
-        text-decoration: none;
-    }
+/* Ensure links inside highlight stay light */
+.highlight-player a {
+    color: #ffffff;
+    text-decoration: none;
+}
 /* Highlighted player row link styling */
 .highlight-player a,
 .highlight-player a:visited,
@@ -104,19 +104,100 @@ a.active-level {
     color: #ffffff !important; /* Force white */
     text-decoration: none;
 }
+
+/* === Score Submission Form === */
+/* Make the whole form horizontal, with wrapped label+input pairs */
+.score-form {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping */
+    gap: 1.5rem; /* Space between groups */
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+    /* Label + input as a single inline unit */
+    .score-form .form-field {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: nowrap; /* Keep label + input together */
+    }
+
+        /* Keep fields from shrinking too much when wrapped */
+        .score-form .form-field input {
+            flex-shrink: 0;
+        }
+
+    /* Dark mode label */
+    .score-form label {
+        color: #ffffff;
+        font-weight: normal;
+        white-space: nowrap;
+        margin: 0;
+    }
+
+    /* Dark mode input */
+    .score-form input {
+        background-color: #2a2a2a;
+        color: #ffffff;
+        border: 1px solid #444;
+        padding: 0.4rem;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+        /* Input focus */
+        .score-form input:focus {
+            outline: none;
+            border-color: #4da6ff;
+        }
+
+    /* Button style */
+    .score-form button {
+        background-color: #004080;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+        .score-form button:hover {
+            background-color: #0066cc;
+        }
+
+/* Custom widths via field class */
+.form-field.level-field input {
+    width: 5ch;
+}
+
+.form-field.score-field input {
+    width: 13ch; /* visually wide */
+}
+
+/* Section separator*/
+.section-separator {
+    height: 1px;
+    background-color: #333;
+    border: none;
+    margin: 2rem 0 1rem 0;
+    width: 100%;
+}
+
 a {
     color: #4da6ff; /* Light blue */
     text-decoration: none; /* Remove underline */
 }
 
-    a:visited {
-        color: #4da6ff; /* Prevent purple after visit */
-    }
+a:visited {
+    color: #4da6ff; /* Prevent purple after visit */
+}
 
-    a:hover {
-        color: #80cfff; /* Lighter blue on hover */
-        text-decoration: underline;
-    }
+a:hover {
+    color: #80cfff; /* Lighter blue on hover */
+    text-decoration: underline;
+}
 
 h1 {
     text-align: center;
