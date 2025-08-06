@@ -45,14 +45,15 @@ namespace LeaderboardApi.Controllers
             var existing = await _context.PlayerScores
                 .FirstOrDefaultAsync(p => p.PlayerName == score.PlayerName && p.Level == score.Level);
 
+            // No previous score for this player/level → insert new score
             if (existing == null)
             {
-                // No previous score for this player/level → insert new score
                 _context.PlayerScores.Add(score);
             }
+            // Score exists → update only if new score is higher
             else
             {
-                // Score exists → update only if new score is higher
+                
                 if (score.Score > existing.Score)
                 {
                     existing.Score = score.Score;
@@ -84,13 +85,13 @@ namespace LeaderboardApi.Controllers
                     PlayerName = score.PlayerName,
                     Level = 0,
                     Score = totalScore,
-                    SubmittedAt = DateTime.UtcNow
+                    SubmittedAt = score.SubmittedAt
                 });
             }
             else
             {
                 totalRecord.Score = totalScore;
-                totalRecord.SubmittedAt = DateTime.UtcNow;
+                totalRecord.SubmittedAt = score.SubmittedAt;
                 _context.PlayerScores.Update(totalRecord);
             }
 
@@ -196,36 +197,67 @@ namespace LeaderboardApi.Controllers
         }
 
 
+        [HttpGet("populate")]
         [HttpPost("populate")]
         public async Task<IActionResult> PopulateTestData()
         {
             var random = new Random();
-            var players = new List<string>();
 
-            // Generate 50 unique player names
-            for (int i = 1; i <= 50; i++)
-                players.Add($"Player{i}");
-
-            for (int level = 1; level <= 5; level++)
+            // NATO phonetic alphabet words
+            string[] natoWords = new[]
             {
-                foreach (var player in players)
+        "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India",
+        "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo",
+        "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu"
+    };
+
+            var players = new HashSet<string>();
+
+            // Generate 50 unique player names using two-word combinations + number
+            while (players.Count < 50)
+            {
+                var first = natoWords[random.Next(natoWords.Length)];
+                var second = natoWords[random.Next(natoWords.Length)];
+
+                // Ensure the two words are different (e.g., avoid "AlphaAlpha")
+                if (first == second)
+                    continue;
+
+                //var suffix = random.Next(10, 100); // e.g., 42
+                var name = $"{first}{second}";// {suffix}"; // e.g., "AlphaZulu42"
+
+                players.Add(name);
+            }
+
+            // Randomly assign scores to levels for each player
+            foreach (var player in players)
+            {
+                // Pick a random number of levels (1–5) for this player
+                int levelsToSubmit = random.Next(1, 6);
+                var levels = Enumerable.Range(1, 5).OrderBy(_ => random.Next()).Take(levelsToSubmit);
+
+                for (int i = 1;i <= levelsToSubmit; i++)
                 {
-                    Console.WriteLine($"{player} added to {level}");
-                    var score = random.Next(1, 50)*100;
+                    var level = i;
+ 
+                    var score = random.Next(1, 1000)*100; // Score range: 100–100000
+
                     var playerScore = new PlayerScore
                     {
                         PlayerName = player,
                         Level = level,
-                        Score = score
+                        Score = score,
+                        SubmittedAt = DateTime.UtcNow.AddMinutes(-random.Next(0, 100000))
                     };
 
-                    await SubmitScore(playerScore); // Reuse existing logic (updates level 0)
+                    await SubmitScore(playerScore);
                 }
             }
 
-            return Ok("Test data populated.");
+            return Ok("Random test data populated.");
         }
 
+        [HttpGet("clear")]
         [HttpPost("clear")]
         public async Task<IActionResult> ClearScores()
         {
@@ -234,23 +266,6 @@ namespace LeaderboardApi.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("All scores cleared.");
-        }
-
-        [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<PlayerScore>>> GetAllScores()
-        {
-            return await _context.PlayerScores
-                .OrderBy(p => p.PlayerName)
-                .ThenBy(p => p.Level)
-                .ToListAsync();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PlayerScore>> GetScoreById(int id)
-        {
-            var score = await _context.PlayerScores.FindAsync(id);
-            if (score == null) return NotFound();
-            return Ok(score);
         }
     }
 }

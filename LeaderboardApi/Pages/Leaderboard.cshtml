@@ -38,13 +38,18 @@
                     @if (Model.PlayerRow is not null)
                     {
                         <p class="leaderboard-meta">
-                            Player <strong>@Model.PlayerRow.PlayerName</strong> is ranked <strong>#@Model.PlayerRow.Rank</strong> out of <strong>@Model.TotalPlayers</strong>
+                            <strong>@Model.PlayerRow.PlayerName</strong> is ranked <strong>#@Model.PlayerRow.Rank</strong> out of <strong>@Model.TotalPlayers</strong> players 
+                            @if (Model.CurrentLevel != 0)
+                            {
+                                <text> in <strong>Level @Model.CurrentLevel</strong></text>
+                            }
+                            with a score of <strong>@Model.PlayerRow.TotalScore.ToString("N0")</strong>
                         </p>
                     }
                     else
                     {
                         <p class="leaderboard-meta">
-                            Player <strong>@Model.PlayerName</strong> is not ranked
+                            <strong>@Model.PlayerName</strong> is not yet ranked
                             @if (Model.CurrentLevel != 0)
                             {
                                 <text> in <strong>Level @Model.CurrentLevel</strong></text>
@@ -97,7 +102,7 @@
                                     <a href="/Leaderboard?page=0@(levelQuery)&player=@entry.PlayerName">@entry.PlayerName</a>
                                 </td>
                                 <td>@entry.TotalScore.ToString("N0")</td>
-                                <td>@entry.LatestSubmission.ToLocalTime()</td>
+                                <td>@entry.LatestSubmission.ToLocalTime().ToString("MMM d 'at' h:mm tt")</td>
                             </tr>
                         }
                         else
